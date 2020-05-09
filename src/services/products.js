@@ -58,6 +58,27 @@ export const AddaProduct = async function (item) {
     }
 };
 
+export const PatchaProduct = async function (id,item) {
+
+    try {
+        const {
+            data
+        } = await axios.patch(`${getAllProductsApiEndPoint}/${id}`, item, {
+            headers: {
+                'Authorization': localStorage.getItem('token')
+            }
+        });
+        return {
+            data
+        };
+    } catch (error) {
+        console.log(error)
+        return {
+            error
+        };
+    }
+};
+
 export const Delete = async id => {
     await axios.delete(`${getAllProductsApiEndPoint}/${id}`, {
         headers: {

@@ -13,6 +13,13 @@ export const getAllCategories = async function () {
     
 };
 
+export async function GetCatById(id) {
+    const {
+        data
+    } = await axios.get(`${catEndPoint}/${id}`);
+    return data
+}
+
 
 
 

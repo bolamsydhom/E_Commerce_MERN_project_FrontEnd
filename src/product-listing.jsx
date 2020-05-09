@@ -173,15 +173,13 @@ class ProductListing extends Component {
                       addToCartHandler={addToCartHandler}
                       item={item}
                       key={item.id}
-                      id={item.id}
+                      id={item._id}
                       userID={item.userID}
                       data={item.data}
                       price={item.price}
                       discount={item.discount}
                       imagesUrls={item.imagesUrls}
-                      authorized={
-                        item.userID.toString() === localStorage.getItem('loggedPerson').toString() ? true : false
-                      }
+                      authorized={item.userID == localStorage.getItem('loggedPerson') ? true : false}
                     />
                   ))
                 : []}

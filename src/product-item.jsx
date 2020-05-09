@@ -14,7 +14,10 @@ class ProductItem extends Component {
 
   // }
   componentDidMount() {
-    console.log(this.props.authorized);
+    setTimeout(() => {
+      
+      console.log(this.props.authorized);
+    }, 1);
     
 //     let authorized = this.state.authorized;
 // debugger;
@@ -40,7 +43,7 @@ class ProductItem extends Component {
     if (data) {
       return (
         <div className='item-medium-1'>
-          {discount && <div className='item-medium-1__alert'>Sale</div>}
+          {discount ? discount !== 0 ? <div className='item-medium-1__alert'>Sale</div> : undefined : undefined}
           <div className='item-medium-1__image image' style={{ backgroundImage: 'url(' + imagesUrls[0] + ')' }}>
             <Link onClick={() => addToCartHandler(item)} className='item-medium-1__action'>
               Add to Cart
@@ -50,15 +53,16 @@ class ProductItem extends Component {
             <h4>{data[0].name}</h4>
             <div className='flex-row'>
               <div>
-                {discount && <del>${price}</del>}
+                {discount ? discount !== 0 ? <del>${price}</del> : undefined : undefined}
                 <span className='lable'>${discount ? price - discount : price}</span>
               </div>
             </div>
           </Link>
 
-          {this.props.authorized ? (
+          { localStorage.getItem('loggedPerson') ?
+           localStorage.getItem('loggedPerson') == `"${userID}"` ? (
             <div className='crud-actions'>
-              <Link to='#'>
+              <Link to={`/edit/${id}`}>
                 <i className='fas fa-edit'></i>
               </Link>
               <Link onClick={() => deleteHandler(item)}>
@@ -67,7 +71,8 @@ class ProductItem extends Component {
             </div>
           ) : (
             <div className='crud-actions'></div>
-          )}
+          ) : undefined
+          }
         </div>
       );
     }else{

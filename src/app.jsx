@@ -61,11 +61,10 @@ class App extends Component {
         <Header cartItem={this.state.cartItem} />
         <Route path='/product-details/:id' component={ProductDetails} />
         <Route path='/add-product' component={AddProduct} />
+        <Route path='/edit/:id' component={AddProduct} />
         <Route
           path='/product-listing'
-          render={(props) => (
-            <ProductListing addToCartHandler={this.addToCartHandler} />
-          )}
+          render={(props) => <ProductListing addToCartHandler={this.addToCartHandler} />}
         />
         <Route path='/register' component={Register} />
         <Route path='/login' component={Login} />

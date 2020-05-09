@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AddaProduct } from './services/products';
+import { AddaProduct, GetById, PatchaProduct } from './services/products';
 import { Link } from 'react-router-dom';
 import { getAllCategories } from './services/category';
 import { UploadImage } from './services/products';
@@ -7,7 +7,7 @@ import { UploadImage } from './services/products';
 class AddProduct extends Component {
   state = {
     product: {
-      data: [],
+      data: [{}],
       price: '',
       discount: '',
       categoryId: '',
@@ -19,6 +19,12 @@ class AddProduct extends Component {
   };
 
   async componentDidMount() {
+    const id = this.props.match.params.id;
+    if (id) {
+      const editFlag = true;
+      const product = await GetById(id);
+      this.setState({ product, editFlag });
+    }
     const categories = await getAllCategories();
     this.setState({ categories });
 
@@ -30,9 +36,9 @@ class AddProduct extends Component {
     e.preventDefault();
     const price = +this.state.product.price;
     const discount = +this.state.product.discount;
-    const { name, description, category, imagesUrls } = this.state.product;
+    const { data, name, description, category, imagesUrls } = this.state.product;
     const obj = {
-      data: { name, description },
+      data: name ? { name, description } : { name: data[0].name, description: data[0].description },
       price,
       discount,
       categoryId: category,
@@ -40,21 +46,42 @@ class AddProduct extends Component {
     };
     console.log(obj);
     debugger;
-    const {data , error}  = await AddaProduct(obj);
-    console.log(data , error);
-    
-    if (data) {
-      alert('added');
-      this.props.history.push('/product-listing');
-    } else if (error){
-      alert(error);
+    if (this.state.editFlag) {
+      console.log(obj);
+
+      const { data, error } = await PatchaProduct(this.props.match.params.id, obj);
+      console.log(data, error);
+
+      if (data) {
+        alert('edited');
+        this.props.history.push('/product-listing');
+        const editFlag = false;
+        this.setState({ editFlag });
+      } else if (error) {
+        alert(error);
+      }
+    } else {
+      const { data, error } = await AddaProduct(obj);
+      console.log(data, error);
+
+      if (data) {
+        alert('added');
+        this.props.history.push('/product-listing');
+      } else if (error) {
+        alert(error);
+      }
     }
-    // Add(obj)
   };
 
   changeInputHandler = (e) => {
     const product = { ...this.state.product };
-    product[e.target.name] = e.target.value;
+    if (e.target.name == 'name') {
+      product.data[0].name = e.target.value;
+    } else if (e.target.name == 'description') {
+      product.data[0].description = e.target.value;
+    } else {
+      product[e.target.name] = e.target.value;
+    }
     this.setState({ product });
   };
 
@@ -83,7 +110,10 @@ class AddProduct extends Component {
     // {
     //     console.log(this.state.product.category);
     // }
-    const { name, description, price, discount, category, tags, imagesUrls } = this.state.product;
+    const { name, description, data, price, discount, category, tags, categoryId, imagesUrls } = this.state.product;
+    // const data = this.state.product.data.map((e) => {
+    //   return [{name: e.name, description: e.description}];
+    // });
 
     const { categories, image } = this.state;
     return (
@@ -138,7 +168,7 @@ class AddProduct extends Component {
                         <label htmlFor=''>Name</label>
                         <input
                           onChange={this.changeInputHandler}
-                          value={name}
+                          value={data[0].name}
                           className='form-control'
                           type='text'
                           name='name'
@@ -149,7 +179,7 @@ class AddProduct extends Component {
                         <label htmlFor=''>Description</label>
                         <textarea
                           onChange={this.changeInputHandler}
-                          value={description}
+                          value={data[0].description}
                           className='form-control'
                           name='description'
                           id='description'
@@ -219,7 +249,7 @@ class AddProduct extends Component {
                   <select onChange={this.changeInputHandler} className='form-control' name='category' id=''>
                     <option></option>
                     {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
+                      <option key={category.id} selected={category.id === categoryId} value={category.id}>
                         {category.name}
                       </option>
                     ))}
@@ -229,7 +259,7 @@ class AddProduct extends Component {
                 <div className='add-product__actions'>
                   <button className='btn btn--gray'>Cancel</button>
                   <button onClick={this.addProductHandler} className='btn btn--primary'>
-                    Add
+                    {this.props.match.params.id ? 'Edit' : 'Add'}
                   </button>
                 </div>
               </div>
